@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Sezal | From Vasu 💖</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@400;600;800&family=Sacramento&display=swap" rel="stylesheet">
+    
+    <!-- Three.js (3D Library) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #08010f;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 3D WebGL Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main Container */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        /* Glass Heart UI Container */
+        .heart-ui-container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 2px solid rgba(255, 105, 180, 0.4);
+            border-radius: 35px;
+            padding: 40px 25px;
+            box-shadow: 0 0 60px rgba(255, 42, 109, 0.35), inset 0 0 25px rgba(255, 105, 180, 0.2);
+            position: relative;
+            transition: transform 0.4s ease;
+        }
+
+        .heart-badge {
+            background: linear-gradient(45deg, #ff2a6d, #ff758c);
+            color: #ffffff;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: inline-block;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 42, 109, 0.6);
+        }
+
+        .main-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 2.3rem;
+            background: linear-gradient(45deg, #ff758c, #ff7eb3, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        /* Step 1: 3D Tap Box */
+        .tap-heart {
+            font-size: 95px;
+            cursor: pointer;
+            margin: 20px 0;
+            display: inline-block;
+            animation: pulse3D 1.8s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 25px #ff2a6d);
+            transition: transform 0.3s;
+        }
+
+        .tap-heart:hover {
+            transform: scale(1.25) rotate(10deg);
+        }
+
+        @keyframes pulse3D {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-15px) scale(1.1); filter: drop-shadow(0 0 40px #ff758c); }
+        }
+
+        /* Step 2: Content (Initially Hidden) */
+        #main-content {
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .love-note {
+            font-family: 'Sacramento', cursive;
+            font-size: 1.9rem;
+            color: #ffb6c1;
+            line-height: 1.4;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 1px dashed rgba(255, 182, 193, 0.5);
+        }
+
+        /* Funny Vasu Question Area */
+        .vasu-box {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .question {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            min-height: 70px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            font-size: 1rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-yes {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 176, 155, 0.6);
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.15);
+        }
+
+        .btn-no {
+            background: rgba(255, 71, 87, 0.8);
+            color: white;
+            position: absolute;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+        #success-msg {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ff758c;
+            text-shadow: 0 0 15px rgba(255, 117, 140, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Three.js 3D Canvas Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="wrapper">
+        
+        <!-- STEP 1: INTRO HEART CARD -->
+        <div class="heart-ui-container" id="intro-screen">
+            <span class="heart-badge">From Loving Vasu 💌</span>
+            <h1 class="main-title">Hey Sezal! ✨</h1>
+            <p style="color: #ccc;">A 3D secret gift is waiting for you...</p>
+            
+            <div class="tap-heart" onclick="openHeart()">💖</div>
+            
+            <p style="color: #ff758c; font-weight: 700;">Tap the glowing heart to open! 👇</p>
+        </div>
+
+        <!-- STEP 2: MAIN HEART CARD -->
+        <div class="heart-ui-container" id="main-content">
+            <span class="heart-badge">Official Bestie Card 🏆</span>
+            <h1 class="main-title">Sezal, You're Amazing! ❤️</h1>
+            
+            <div class="love-note">
+                "Dear Sezal, thank you for being the most supportive, funny, and incredible best friend. Life is so much better with you in it!"
+            </div>
+
+            <!-- Funny "Loving Vasu" Question -->
+            <div class="vasu-box">
+                <p class="question">Does Sezal officially declare Vasu as her #1 favorite best friend forever? 🥺👉👈</p>
+                
+                <div class="btn-group">
+                    <button class="btn btn-yes" id="yesBtn" onclick="agreeVasu()">YES! 100% 🥳</button>
+                    <button class="btn btn-no" id="noBtn" onmouseover="runAwayNo()" onclick="runAwayNo()">No 😜</button>
+                </div>
+
+                <div id="success-msg">
+                    🎉 Woohoo! Bestie Contract Signed! Vasu & Sezal Best Friends Forever! 💖✨
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* -----------------------------------------------------------
+           1. THREE.JS 3D CINEMATIC HEART SCENE
+        ----------------------------------------------------------- */
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Create 3D Heart Geometry
+        const heartShape = new THREE.Shape();
+        const x = 0, y = 0;
+        heartShape.moveTo(x + 25, y + 25);
+        heartShape.bezierCurveTo(x + 25, y + 25, x + 20, y, x, y);
+        heartShape.bezierCurveTo(x - 30, y, x - 30, y + 35, x - 30, y + 35);
+        heartShape.bezierCurveTo(x - 30, y + 55, x - 10, y + 77, x + 25, y + 95);
+        heartShape.bezierCurveTo(x + 60, y + 77, x + 80, y + 55, x + 80, y + 35);
+        heartShape.bezierCurveTo(x + 80, y + 35, x + 80, y, x + 50, y);
+        heartShape.bezierCurveTo(x + 35, y, x + 25, y + 25, x + 25, y + 25);
+
+        const extrudeSettings = { depth: 10, bevelEnabled: true, bevelSegments: 4, steps: 2, bevelSize: 4, bevelThickness: 4 };
+        const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+        geometry.center();
+
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xff2a6d,
+            emissive: 0x440011,
+            specular: 0xffffff,
+            shininess: 100
+        });
+
+        const mainHeart = new THREE.Mesh(geometry, material);
+        mainHeart.scale.set(0.022, 0.022, 0.022);
+        mainHeart.rotation.x = Math.PI;
+        scene.add(mainHeart);
+
+        // Add 3D Floating Heart Particles
+        const particlesGroup = new THREE.Group();
+        for (let i = 0; i < 35; i++) {
+            const pMesh = new THREE.Mesh(geometry, material);
+            pMesh.scale.set(0.004, 0.004, 0.004);
+            pMesh.rotation.x = Math.PI;
+            pMesh.position.set(
+                (Math.random() - 0.5) * 16,
+                (Math.random() - 0.5) * 16,
+                (Math.random() - 0.5) * 10
+            );
+            particlesGroup.add(pMesh);
+        }
+        scene.add(particlesGroup);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xff758c, 2.5, 100);
+        pointLight.position.set(10, 20, 15);
+        scene.add(pointLight);
+
+        camera.position.z = 5;
+
+        // Mouse Move Parallax Effect
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+        });
+
+        // Render Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            mainHeart.rotation.y += 0.015;
+            particlesGroup.rotation.y += 0.003;
+
+            camera.position.x += (mouseX - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        /* -----------------------------------------------------------
+           2. INTERACTIVE FUNCTIONS
+        ----------------------------------------------------------- */
+        function openHeart() {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+        let yesScale = 1;
+        function runAwayNo() {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+
+            const x = Math.floor(Math.random() * 200) - 100;
+            const y = Math.floor(Math.random() * 160) - 80;
+
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+
+            yesScale += 0.25;
+            yesBtn.style.transform = `scale(${yesScale})`;
+        }
+
+        function agreeVasu() {
+            confetti({
+                particleCount: 300,
+                spread: 100,
+                origin: { y: 0.5 }
+            });
+
+            document.querySelector('.btn-group').style.display = 'none';
+            document.getElementById('success-msg').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
